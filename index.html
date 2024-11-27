@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SM64DS Wanted! Minigame</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            margin: 20px;
+        }
+        #target {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px;
+        }
+        #grid {
+            display: grid;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px auto;
+            max-width: 90%;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            cursor: pointer;
+        }
+        .cell img {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        .cell.correct {
+            border-color: green;
+        }
+        .cell.wrong {
+            border-color: red;
+        }
+        #message {
+            font-size: 18px;
+            margin: 20px;
+            color: green;
+        }
+        #level {
+            font-size: 18px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wanted!</h1>
+    <div id="level">Level: <span id="currentLevel">1</span></div>
+    <div id="target">Find: <span id="targetName"></span></div>
+    <div id="grid"></div>
+    <p id="message"></p>
+    <audio id="backgroundMusic" loop>
+        <source src="https://www.fesliyanstudios.com/play-mp3/387" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <script>
+        const characters = [
+            { name: "Mario", img: "https://via.placeholder.com/100?text=Mario" },
+            { name: "Luigi", img: "https://via.placeholder.com/100?text=Luigi" },
+            { name: "Yoshi", img: "https://via.placeholder.com/100?text=Yoshi" },
+            { name: "Wario", img: "https://via.placeholder.com/100?text=Wario" }
+        ];
+
+        const grid = document.getElementById('grid');
+        const targetName = document.getElementById('targetName');
+        const message = document.getElementById('message');
+        const currentLevelDisplay = document.getElementById('currentLevel');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+
+        let targetCharacter;
+        let level = 1;
+
+        // Start music
+        backgroundMusic.volume = 0.5;
+        backgroundMusic.play();
+
+        function setupGame() {
+            // Clear previous state
+            grid.innerHTML = "";
+            message.textContent = "";
+
+            // Update level display
+            currentLevelDisplay.textContent = level;
+
+            // Calculate grid size based on level
+            const gridSize = Math.min(level + 3, 10); // Cap grid size to avoid overflowing screen
+            grid.style.gridTemplateColumns = `repeat(${gridSize}, 100px)`;
+
+            // Randomly select a target character
+            targetCharacter = characters[Math.floor(Math.random() * characters.length)];
+            targetName.textContent = targetCharacter.name;
+
+            // Generate a random grid of faces
+            const gridCount = gridSize * gridSize;
+            const shuffled = [];
+            for (let i = 0; i < gridCount - 1; i++) {
+                shuffled.push(characters[Math.floor(Math.random() * characters.length)]);
+            }
+            shuffled.splice(Math.floor(Math.random() * gridCount), 0, targetCharacter);
+
+            shuffled.forEach(char => {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.innerHTML = `<img src="${char.img}" alt="${char.name}">`;
+                cell.addEventListener('click', () => checkChoice(cell, char));
+                grid.appendChild(cell);
+            });
+        }
+
+        function checkChoice(cell, char) {
+            if (char.name === targetCharacter.name) {
+                cell.classList.add('correct');
+                message.textContent = "Correct! Next level!";
+                level++;
+                setTimeout(setupGame, 1000); // Advance to next level after a short delay
+            } else {
+                cell.classList.add('wrong');
+                message.textContent = "Try again!";
+            }
+        }
+
+        // Initialize the game
+        setupGame();
+    </script>
+</body>
+</html>
